@@ -2,6 +2,12 @@ import cv2
 import os
 import subprocess
 import math
+import numpy as np
+
+from src.GateDetector import GateDetector
+import utils_io
+
+gate_detector = GateDetector()
 
 def telemetry_thread(tello):
     frame_read = tello.get_frame_read()
@@ -25,8 +31,19 @@ def telemetry_thread(tello):
         #Tello uses BGR format, but OpenCV uses RGB format, so we need to convert it
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        cv2.imshow("drone", img)
+        #Predict the gate position using the GateDetector
+        prediction = gate_detector.predict(img)
+        
+        #Display the gate position on the image
+        pred_img, bboxes = utils_io.display_target_woWH(np.float32(prediction[0]), 
+                                                         img, 
+                                                         gate_detector.config['output_shape'], 
+        
+                                                         0.7, ret=True)
+    
+        cv2.imshow("drone", pred_img)
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
             break
+        
     cv2.destroyAllWindows()
