@@ -34,11 +34,15 @@ def telemetry_thread(tello):
         #Predict the gate position using the GateDetector
         prediction = gate_detector.predict(img)
         
+        # pred_img, bboxes = utils_io.display_target(np.float32(prediction[0]), 
+        #                                            img, 
+        #                                            gate_detector.config['output_shape'],
+        #                                            ret=True)
+        
         #Display the gate position on the image
-        pred_img, bboxes = utils_io.display_target_woWH(np.float32(prediction[0]), 
+        pred_img, bboxes = GateDetector.display_predicticed_gate_center(np.float32(prediction[0]), 
                                                          img, 
                                                          gate_detector.config['output_shape'], 
-        
                                                          0.7, ret=True)
     
         cv2.imshow("drone", pred_img)

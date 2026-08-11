@@ -32,3 +32,33 @@ class GateDetector:
         print("output values:", y)
 
         return y
+
+    def display_predicticed_gate_center(M, source_img, output_shape, threshold, ret=False):
+        img = source_img.copy()
+        img_height, img_width = img.shape[:2]
+
+        bbox_results = []
+        nrow, ncol = output_shape[0], output_shape[1]
+        grid_dim_x = img_width/ncol
+        grid_dim_y = img_height/nrow
+
+        for i in range(nrow):
+            for j in range(ncol):
+                cv2.line(img, (int(j*grid_dim_x), 0), (int(j*grid_dim_x), img_height), (0,255,0), 1)
+                cv2.line(img, (0, int(i*grid_dim_y)), (img_width, int(i*grid_dim_y)), (0,255,0), 1)
+
+                if M[i,j,0] > threshold:
+                    cx, cy, distance, yaw_relative = M[i,j,1:]
+
+                    #print(M[i,j,0], i, j, cx, cy, distance, yaw_relative)
+
+                    cx_on_img = int(j * grid_dim_x + cx * grid_dim_x)
+                    cy_on_img = int(i * grid_dim_y + cy * grid_dim_y)
+                    cv2.circle(img, (cx_on_img, cy_on_img), 3, (0,255,0), 3)
+
+                    bbox_results.append((cx_on_img, cy_on_img, abs(float(distance)), yaw_relative))
+                    
+        #cv2.imwrite("display.png", img)
+        if ret:
+            return img, bbox_results
+
